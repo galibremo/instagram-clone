@@ -75,7 +75,19 @@ export default function Header() {
     );
   }
 
-  function handleSubmit() {}
+  async function handleSubmit() {
+    setPostUploading(true);
+    const docRef = await addDoc(collection(db, "post"), {
+      username: session.user.username,
+      caption,
+      profileImg: session.user.image,
+      image: imageFileUrl,
+      timestamp: serverTimestamp(),
+    });
+    setPostUploading(false);
+    setIsOpen(false);
+    location.reload();
+  }
 
   return (
     <div className="shadow-sm border-b sticky top-0 bg-white z-30 p-3">
@@ -161,10 +173,16 @@ export default function Header() {
             maxLength="150"
             placeholder="Please enter you caption..."
             className="m-4 border-none text-center w-full focus:ring-0 outline-none"
+            onChange={(e) => setCaption(e.target.value)}
           />
           <button
             onClick={handleSubmit}
-            disabled
+            disabled={
+              !selectedFile ||
+              caption.trim() === "" ||
+              postUploading ||
+              imageFileUploading
+            }
             className="w-full bg-red-600 text-white p-2 shadow-md rounded-lg hover:brightness-105 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:hover:brightness-100"
           >
             Upload Post
